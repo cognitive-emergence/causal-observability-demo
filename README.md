@@ -59,7 +59,7 @@ JEP（Judgment · Delegation · Termination · Verification）四原语问责协
 
 - 数学基础论文（第二篇）：*A Theory of Target-Fact Determinability in Finite Causal Event Systems*
 - 协议架构论文（第一篇）：*Judgment, Delegation, Termination, Verification: A Minimal Grammar for AI Accountability*
-- 论文 PDF 与评估语料见 Dataset：[cognitiveemergencelab/jep-papers-and-corpus](https://huggingface.co/datasets/cognitiveemergencelab/jep-papers-and-corpus)
+- 论文 PDF 与评估语料见 Dataset：[cognitiveemergencelab/jep-papers-and-corpus](https://huggingface.co/datasets/yuqiangJEP/jep-papers-and-corpus)
 
 ---
 
