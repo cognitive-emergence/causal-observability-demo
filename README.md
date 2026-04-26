@@ -1,3 +1,4 @@
+---
 title: Causal Observability Demo
 emoji: 🔍
 colorFrom: blue
@@ -18,7 +19,7 @@ An interactive demonstration of the finite-model checking algorithm from the pap
 
 ## Core Theorem
 
-> **D is determinable from Ω ⟺ D is constant on every Ω-equivalence class.**
+&gt; **D is determinable from Ω ⟺ D is constant on every Ω-equivalence class.**
 
 This theorem defines the mathematical boundary of accountability: if the observation function Ω is not rich enough, causing configurations with different targets to fall into the same observation equivalence class, then no audit procedure can determine the target fact with zero error.
 
