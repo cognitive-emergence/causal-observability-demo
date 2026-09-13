@@ -73,11 +73,13 @@ with gr.Blocks(title="因果可观测性演示", css=".contain { max-width: 1200
     # 因果可观测性演示
     ### Causal Observability Gap — Finite-Model Determinability Checker
     
-    基于论文 *"A Theory of Target-Fact Determinability in Finite Causal Event Systems"* 的有限模型检验算法。
+    用于检查给定有限模型中，所选观察是否足以确定指定目标。相关论文：[Target Determinability under Partial Causal Observation: A Faithful Reduction Framework](https://doi.org/10.5281/zenodo.22673663)。
     
-    > **核心定理**：D 可从 Ω 零误差确定 ⟺ D 在每个 Ω-等价类上为常数。
+    > **可判定性条件**：D 可从 Ω 零误差确定 ⟺ D 在每个 Ω-等价类上为常数。
     > 
     > *D is determinable from Ω if and only if D is constant on every Ω-equivalence class.*
+    
+    这是标准的商集因式分解条件。结论相对于输入的配置族、观察函数和目标成立；用于外部问题时，需要论证该模型保留了问题中相关的可能性。
     """)
     
     with gr.Row():
@@ -87,7 +89,7 @@ with gr.Blocks(title="因果可观测性演示", css=".contain { max-width: 1200
                 label="配置族 F（JSON 列表）",
                 value=EXAMPLE,
                 lines=18,
-                info="每个配置是一个对象。论文 10.2 节 LLM 代理审计的 8 配置已预填。"
+                info="每个配置是一个对象。已预填用于说明观察细化的 8 个代理审计样例配置。"
             )
             observed_input = gr.Textbox(
                 label="观察函数 Ω（可见属性，逗号分隔）",
@@ -107,7 +109,9 @@ with gr.Blocks(title="因果可观测性演示", css=".contain { max-width: 1200
             1. `output` —— 仅看最终输出（Ω₀）
             2. `output,tool_type` —— 加入工具类型（Ωₜ）
             3. `output,tool_type,has_verification` —— 加入验证标志（Ωₜ,ᵥ）
-            4. `output,tool_type,has_verification,verif_hash` —— 加入防篡改哈希（Ωₜ,ᵥ,ₕ）
+            4. `output,tool_type,has_verification,verif_hash` —— 加入样例中的验证标签（Ωₜ,ᵥ,ₕ）
+            
+            `verif_hash` 中的 `valid_hash`、`forged_hash` 等是预设标签。本演示只比较这些标签，不计算或认证哈希，也不验证签名或真实验证行为。
             """)
         
         with gr.Column(scale=1):
@@ -122,17 +126,21 @@ with gr.Blocks(title="因果可观测性演示", css=".contain { max-width: 1200
     ---
     ### 算法说明
     
-    本演示实现了论文 **Appendix D** 的 `CheckDeterminability` 算法：
+    本演示通过以下步骤检查输入有限模型中的可判定性：
     
     1. 按观察值 `Ω(C)` 将配置族 `F` 分组；
     2. 若某组内出现多个目标值，则返回 **NotDetermined** 及反例对 `(C₁, C₂)` 作为不可确定性的证书；
     3. 若所有组均为目标单色，则返回 **Determined** 及决策表 `δ`。
     
-    该算法是论文 **Theorem 10.1** 的直接实现：对有限 `F`，返回 Determined 当且仅当 `D` 可从 `Ω` 零误差确定。
+    对输入的有限配置族 `F`，所有观察等价类均为目标单色时返回 **Determined**；否则返回 **NotDetermined** 及反例对。这一结果只说明给定模型中的目标可判定性。限制配置族以消除冲突时，需要独立依据。
     
     ### 与 JEP 的关系
     
-    JEP（Judgment / Delegation / Termination / Verification）四原语协议的核心层，正是基于该数学定理推导出的**最小稳定记录语法**——通过强制记录四类关键状态转换，打破 Ω-等价类中的目标歧义，使审计目标从数学上变为可确定。
+    JEP 表达 Judgment / Delegation / Termination / Verification 事件。这些记录可以成为可判定性分析中的观察；是否足以确定目标，仍取决于配置族、观察函数、目标以及支持证据。
+    
+    可判定性条件**不能直接推出 J/D/T/V，也不证明四原语的唯一性或最小性**。表达充分性与最小性需要另行定义、论证和检验；[ART](https://github.com/cognitive-emergence/ART) 将这些问题作为研究假设。
+    
+    记录四类事件不会自动使外部目标可判定；有效签名或引用链也不会自动证明外部事实。协议的验证范围见 [JEP-Core](https://datatracker.ietf.org/doc/draft-wang-jep-judgment-event-protocol/)。
     """)
 
 if __name__ == "__main__":

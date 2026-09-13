@@ -13,53 +13,66 @@ pinned: false
 
 **Causal Observability Gap — Finite-Model Determinability Checker**
 
-An interactive demonstration of the finite-model checking algorithm from the paper *"A Theory of Target-Fact Determinability in Finite Causal Event Systems"*.
+An interactive demonstration of target-relative determinability in a supplied finite model.
 
 ---
 
-## Core Theorem
+## Determinability Criterion
 
-&gt; **D is determinable from Ω ⟺ D is constant on every Ω-equivalence class.**
+> **D is determinable from Ω ⟺ D is constant on every Ω-equivalence class.**
 
-This theorem defines the mathematical boundary of accountability: if the observation function Ω is not rich enough, causing configurations with different targets to fall into the same observation equivalence class, then no audit procedure can determine the target fact with zero error.
+This is the standard quotient-factorization condition: a target function `D` can be recovered from an observation function `Ω` exactly when `D = δ ∘ Ω` for some decision rule `δ`.
+
+For a specified configuration family `F`, two configurations with the same observation but different target values are a counterexample to zero-error determinability. No decision rule using only that observation can be correct for every configuration in `F`.
+
+The result is relative to the supplied model. Applying it to an external problem requires justifying that the configurations, observations, and target preserve the relevant possibilities in that problem.
 
 ---
 
 ## Features
 
-This Space implements the `CheckDeterminability` algorithm from **Appendix D** of the paper:
+The checker in [app.py](app.py) groups configurations by observation and compares their target values:
 
 - **Input**: Finite configuration family `F` (JSON), observation function `Ω` (list of visible attributes), target function `D` (target attribute key)
 - **Output**:
-  - `Determined` + decision table `δ` (audit feasible)
-  - `NotDetermined` + counterexample pair `(C₁, C₂)` (audit infeasible; refine observation or restrict configuration family)
+  - `Determined` + decision table `δ`: the observation determines the target within the supplied model.
+  - `NotDetermined` + counterexample pair `(C₁, C₂)`: the observation leaves a target conflict within the supplied model.
 
-Pre-loaded with the LLM agent audit case from **Section 10.2** of the paper (8 configurations), allowing direct reproduction of the observation refinement progression from Ω₀ to Ωₜ,ᵥ,ₕ.
+The preloaded agent-audit example contains eight illustrative configurations. It demonstrates observation refinement from Ω₀ to Ωₜ,ᵥ,ₕ. Refining observations or restricting the configuration family changes the model; any restriction used in a real application needs independent justification.
 
 ---
 
 ## Quick Experiment
 
-Try the following in the "Observation Function" input field in sequence:
+Using the preloaded example and `target` as the target key, try the following observation fields in sequence:
 
 1. `output` — output only (Ω₀) → **NotDetermined**
 2. `output,tool_type` — add tool type (Ωₜ) → **NotDetermined**
 3. `output,tool_type,has_verification` — add verification flag (Ωₜ,ᵥ) → **NotDetermined**
-4. `output,tool_type,has_verification,verif_hash` — add tamper-resistant hash (Ωₜ,ᵥ,ₕ) → **Determined**
+4. `output,tool_type,has_verification,verif_hash` — add the example's verification label (Ωₜ,ᵥ,ₕ) → **Determined**
+
+The `verif_hash` values, such as `valid_hash` and `forged_hash`, are predefined labels in this example. The demo compares those labels; it does not calculate or authenticate hashes, verify signatures, or establish that a real verification occurred. The final result follows from the distinctions encoded in these eight configurations.
 
 ---
 
 ## Relationship with JEP
 
-The core layer of the JEP (Judgment · Delegation · Termination · Verification) four-primitive accountability protocol is derived from this mathematical theorem as the **minimal stable record grammar**. The role of the four primitives is to artificially break target ambiguity within Ω-equivalence classes by mandating the recording of critical state transitions, making the audit target mathematically determinable.
+JEP represents Judgment, Delegation, Termination, and Verification events. Such records can contribute observations to a target-determinability analysis. Whether they are sufficient depends on the specified configuration family, observation function, target, and supporting evidence.
+
+The determinability criterion does **not** derive J/D/T/V or establish that they form a unique or minimal event grammar. Expressive adequacy and minimality require separate definitions, arguments, and tests; [ART](https://github.com/cognitive-emergence/ART) treats these as research hypotheses.
+
+Recording all four event types does not by itself make an external target determinable. Likewise, a valid signature or reference chain does not by itself establish the truth of an external claim. See the [JEP-Core draft](https://datatracker.ietf.org/doc/draft-wang-jep-judgment-event-protocol/) for the protocol's validation scope.
 
 ---
 
 ## Papers and Code
 
-- Mathematical foundation paper (Paper 2): *A Theory of Target-Fact Determinability in Finite Causal Event Systems*
-- Protocol architecture paper (Paper 1): *Judgment, Delegation, Termination, Verification: A Minimal Grammar for AI Accountability*
-- Paper PDFs and evaluation corpus available in Dataset: [cognitiveemergencelab/jep-papers-and-corpus](https://huggingface.co/datasets/yuqiangJEP/jep-papers-and-corpus)
+- Determinability framework: [*Target Determinability under Partial Causal Observation: A Faithful Reduction Framework*](https://doi.org/10.5281/zenodo.22673663).
+- Event-grammar research: [*Judgment, Delegation, Termination, Verification: Toward a Minimal Accountability Grammar for Human-AI Agent Decision Chains*](https://doi.org/10.5281/zenodo.22716894).
+- Supporting papers and evaluation corpus: [yuqiangJEP/jep-papers-and-corpus](https://huggingface.co/datasets/yuqiangJEP/jep-papers-and-corpus). This collection includes historical material and is not the normative JEP specification.
+- Demo implementation and preloaded configurations: [app.py](app.py).
+
+The demo originated with an earlier manuscript edition. Its historical section numbering should not be assumed to match the linked paper editions.
 
 ---
 
